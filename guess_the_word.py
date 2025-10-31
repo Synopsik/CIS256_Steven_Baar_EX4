@@ -1,9 +1,5 @@
 import random
 import os, subprocess
-from typing import Any
-
-DEFAULT_GUESSES = 10
-
 
 class GuessGame:
     def __init__(self):
@@ -11,16 +7,19 @@ class GuessGame:
         self._words_list = ["cipher","epoch","glyph","kernel","matrix","nexus","pixel","vector","daemon","lambda"]
         self._random_word = ""
         self._guess_word = ""
-        self._guesses = DEFAULT_GUESSES
+        self.default_guesses = 10
+        self._guesses = self.default_guesses
 
 
-    def get_words(self) -> list[str]:
+    def get_words_list(self) -> list[str]:
         return self._words_list
 
 
-    def get_random_word(self) -> str:
+    def get_current_random_word(self) -> str:
         return self._random_word
 
+    def get_guess_word(self) -> str:
+        return self._guess_word
 
     def set_random_word(self) -> None:
         if not self._words_list:
@@ -36,11 +35,12 @@ class GuessGame:
         self._clear()
         self.set_random_word()
         self._guess_word = ""
-        self._guesses = DEFAULT_GUESSES
+        self._guesses = self.default_guesses
         self.is_over = False
 
 
     def register_guess(self, letter) -> None:
+        self._guesses -= 1
         if letter == self._random_word[len(self._guess_word)]:
             self._guess_word += letter
             if len(self._guess_word) == len(self._random_word):
@@ -50,10 +50,9 @@ class GuessGame:
                 input("Press Enter to continue...")
                 self.is_over = True
                 return
-            # self._guesses = DEFAULT_GUESSES # Uncomment to refresh user guesses after correct guesses
+            # self._guesses = self.default_guesses # Uncomment to reset user guesses after a correct guess
             self._clear()
         else:
-            self._guesses -= 1
             if not self.can_guess():
                 self._clear()
                 print("You lose!")
@@ -70,14 +69,14 @@ class GuessGame:
         while True:
             print("Welcome to the word-guessing game!")
             print(f"Remaining Guesses: {self._guesses}")
-            # print(f"Random Word: {self._random_word}") # Uncomment to show random word to the user
+            # print(f"Random Word: {self._random_word}") # Uncomment to include the random word in the output
 
             if len(self._guess_word) > 0:
                 print(f"\nCurrent Guess: {self._guess_word}")
 
             guess = input("\nEnter a single letter: ")
-            if (guess.isalpha()
-                    and isinstance(guess, str)
+            if (isinstance(guess, str)
+                    and guess.isalpha()
                     and len(guess) == 1):
                 return guess
 
